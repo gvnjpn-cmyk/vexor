@@ -322,6 +322,49 @@
       </div>
     </div>
 
+
+    <!-- 7. ID Card -->
+    <div class="ep-card" id="ep-7">
+      <div class="ep-header" onclick="toggle('ep-7')">
+        <span class="method-tag tag-post">POST</span>
+        <span class="ep-path">/api/id-card</span>
+        <span class="ep-desc">Generate kartu ID sebagai gambar</span>
+        <span class="ep-chevron">▼</span>
+      </div>
+      <div class="ep-body">
+        <table class="param-table">
+          <tr><th>Parameter</th><th>Type</th><th>Status</th><th>Keterangan</th></tr>
+          <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge">required</span></td><td>Nama lengkap user</td></tr>
+          <tr><td class="param-name">number</td><td class="param-type">string</td><td><span class="req-badge">required</span></td><td>Nomor WA / ID user</td></tr>
+          <tr><td class="param-name">avatar</td><td class="param-type">string</td><td><span class="opt-badge">optional</span></td><td>URL foto profil</td></tr>
+          <tr><td class="param-name">role</td><td class="param-type">string</td><td><span class="opt-badge">optional</span></td><td>Role/jabatan (cth: Member, Admin)</td></tr>
+          <tr><td class="param-name">bio</td><td class="param-type">string</td><td><span class="opt-badge">optional</span></td><td>Bio singkat / keterangan tambahan</td></tr>
+        </table>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 0;font-family:'JetBrains Mono',monospace">
+          Response: <code style="color:#a78bfa">{ ok, imageBase64, mimeType, width, height }</code> — kirim langsung ke WA sebagai gambar.
+        </p>
+        <div class="try-section">
+          <div class="try-label">▶ Try it</div>
+          <div class="try-form">
+            <div class="try-row">
+              <input class="try-input" id="id-name" placeholder="Budi Santoso">
+              <input class="try-input" id="id-number" placeholder="628123456789">
+            </div>
+            <div class="try-row">
+              <input class="try-input" id="id-avatar" placeholder="https://i.pravatar.cc/150 (optional)">
+              <input class="try-input" id="id-role" placeholder="Member" style="max-width:120px">
+            </div>
+            <input class="try-input" id="id-bio" placeholder="Bio singkat (optional)" style="width:100%">
+            <button class="btn-try" onclick="tryIdCard()">Generate ID Card</button>
+          </div>
+          <div class="resp-box" id="resp-7"></div>
+          <div id="id-preview" style="display:none;margin-top:12px;text-align:center">
+            <img id="id-img" style="max-width:100%;border-radius:8px;border:1px solid var(--border)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /endpoints -->
 </main>
 
@@ -353,7 +396,62 @@
     card.classList.toggle('open');
   }
 
-  async function tryEndpoint(path, method, fieldMap, respId) {
+  async function tryIdCard() {
+    const respBox = document.getElementById('resp-7');
+    const preview = document.getElementById('id-preview');
+    const img = document.getElementById('id-img');
+    const key = document.getElementById('global-key').value.trim() || apiKey;
+    const btn = event.target;
+
+    if (!key) {
+      respBox.className = 'resp-box show err';
+      respBox.textContent = '⚠ Masukkan API key dulu di atas!';
+      return;
+    }
+
+    const body = {};
+    ['name','number','avatar','role','bio'].forEach(f => {
+      const el = document.getElementById('id-' + f);
+      if (el && el.value.trim()) body[f] = el.value.trim();
+    });
+
+    if (!body.name || !body.number) {
+      respBox.className = 'resp-box show err';
+      respBox.textContent = '⚠ name dan number wajib diisi!';
+      return;
+    }
+
+    respBox.className = 'resp-box show loading';
+    respBox.textContent = '⏳ Generating ID card...';
+    preview.style.display = 'none';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/id-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.ok && data.imageBase64) {
+        const { imageBase64, mimeType, width, height } = data;
+        respBox.className = 'resp-box show ok';
+        respBox.textContent = `✓ ID Card generated!\nSize: ${width}x${height}px\nBase64 length: ${imageBase64.length} chars`;
+        img.src = `data:${mimeType};base64,${imageBase64}`;
+        preview.style.display = 'block';
+      } else {
+        respBox.className = 'resp-box show err';
+        respBox.textContent = '✗ ' + JSON.stringify(data, null, 2);
+      }
+    } catch (err) {
+      respBox.className = 'resp-box show err';
+      respBox.textContent = '✗ Error: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+    async function tryEndpoint(path, method, fieldMap, respId) {
     const respBox = document.getElementById(respId);
     const key = document.getElementById('global-key').value.trim() || apiKey;
 
