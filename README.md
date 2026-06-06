@@ -61,3 +61,72 @@ Contoh untuk send-message.js:
 import { sock } from '../lib/wa-session.js'
 await sock.sendMessage(formatted + '@s.whatsapp.net', { text: message })
 ```
+
+## Integrasi ID Card dengan Baileys
+
+Endpoint `/api/id-card` bisa dipanggil hanya dengan `number` saja.
+Tapi kalau mau nama & foto PP beneran dari WA, kirim dari bot Baileys kamu:
+
+```js
+// Di plugin bot Baileys kamu (contoh: plugins/id-card.js)
+
+import fetch from 'node-fetch';
+
+const API_URL = 'https://vexor-kamu.vercel.app'; // ganti URL deploy kamu
+const API_KEY = process.env.VEXOR_API_KEY;
+
+export async function handleIdCard(sock, msg) {
+  const sender = msg.key.remoteJid;
+  const number = sender.replace('@s.whatsapp.net', '');
+
+  // 1. Ambil nama dari profil WA
+  let name = msg.pushName || number;
+
+  // 2. Ambil URL foto profil WA
+  let avatar = null;
+  try {
+    avatar = await sock.profilePictureUrl(sender, 'image');
+  } catch {
+    avatar = null; // pakai fallback otomatis
+  }
+
+  // 3. Ambil status/bio WA (opsional)
+  let bio = '';
+  try {
+    const status = await sock.fetchStatus(sender);
+    bio = status?.status || '';
+  } catch {}
+
+  // 4. Panggil Vexor API
+  const res = await fetch(`${API_URL}/api/id-card`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY
+    },
+    body: JSON.stringify({ number, name, avatar, bio, role: 'Member' })
+  });
+
+  const data = await res.json();
+  if (!data.ok) return sock.sendMessage(sender, { text: '❌ Gagal generate ID card' });
+
+  // 5. Kirim gambar ke WA
+  const imageBuffer = Buffer.from(data.imageBase64, 'base64');
+  await sock.sendMessage(sender, {
+    image: imageBuffer,
+    caption: `✅ *ID Card kamu*\n📛 ${name}\n📱 +${number}`
+  });
+}
+```
+
+### Cara pakai di message handler:
+```js
+if (text === '/id' || text === '.id') {
+  await handleIdCard(sock, msg);
+}
+```
+
+### Env variable tambahan di bot:
+```
+VEXOR_API_KEY=rahasia123
+```
