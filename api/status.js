@@ -12,6 +12,7 @@ export default function handler(req, res) {
       { method: 'POST', path: '/api/sticker',       auth: true,  desc: 'Convert image/gif to sticker' },
       { method: 'POST', path: '/api/downloader',    auth: true,  desc: 'Download TikTok/YouTube/IG/Twitter' },
       { method: 'POST', path: '/api/ai-reply',      auth: true,  desc: 'Generate AI reply via Claude' },
+      { method: 'POST', path: '/api/id-card',       auth: true,  desc: 'Generate kartu ID sebagai gambar PNG' },
     ],
     timestamp: new Date().toISOString(),
   });
