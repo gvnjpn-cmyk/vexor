@@ -1,9 +1,11 @@
 import { checkApiKey, ok, fail } from './_lib.js';
 import { POPPINS_BOLD_B64 } from './_font.js';
+import { Resvg } from '@resvg/resvg-js';
 import sharp from 'sharp';
 
 const W = 600;
 const H = 340;
+const FONT_BUF = Buffer.from(POPPINS_BOLD_B64, 'base64');
 
 function esc(str) {
   return String(str)
@@ -39,26 +41,19 @@ function buildSvg({ name, number, role, bio, avatarB64, initials, date }) {
     ? `<image href="${avatarB64}" x="16" y="${H/2-66}" width="132" height="132"
          preserveAspectRatio="xMidYMid slice" clip-path="url(#ac)"/>`
     : `<circle cx="82" cy="${H/2}" r="66" fill="#2a1f4a"/>
-       <text x="82" y="${H/2+15}" font-family="Poppins" font-size="40" font-weight="bold"
+       <text x="82" y="${H/2+15}" font-family="Poppins" font-size="40"
              fill="${roleColor}" text-anchor="middle">${esc(initials)}</text>`;
 
   const bioEl = bio && bio.trim()
-    ? `<text x="180" y="212" font-family="Poppins" font-size="11" font-weight="bold" fill="#6b6b8a">BIO</text>
-       <text x="180" y="230" font-family="Poppins" font-size="13" font-weight="bold" fill="#9d9dbb">${esc(trunc(bio, 55))}</text>`
+    ? `<text x="180" y="212" font-family="Poppins" font-size="11" fill="#6b6b8a">BIO</text>
+       <text x="180" y="230" font-family="Poppins" font-size="13" fill="#9d9dbb">${esc(trunc(bio, 55))}</text>`
     : '';
 
-  const gridH = Array.from({length: 21}, (_, i) => `<line x1="${i*30}" y1="0" x2="${i*30}" y2="${H}"/>`).join('');
-  const gridV = Array.from({length: 12}, (_, i) => `<line x1="0" y1="${i*30}" x2="${W}" y2="${i*30}"/>`).join('');
+  const gridH = Array.from({length:21},(_,i)=>`<line x1="${i*30}" y1="0" x2="${i*30}" y2="${H}"/>`).join('');
+  const gridV = Array.from({length:12},(_,i)=>`<line x1="0" y1="${i*30}" x2="${W}" y2="${i*30}"/>`).join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}">
   <defs>
-    <style>
-      @font-face {
-        font-family: 'Poppins';
-        font-weight: bold;
-        src: url('data:font/truetype;base64,${POPPINS_BOLD_B64}') format('truetype');
-      }
-    </style>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0f0f1a"/>
       <stop offset="100%" stop-color="#1a1030"/>
@@ -73,21 +68,21 @@ function buildSvg({ name, number, role, bio, avatarB64, initials, date }) {
   <rect width="${W}" height="${H}" rx="20" fill="url(#bg)"/>
   <g clip-path="url(#cc)" stroke="rgba(167,139,250,0.04)" stroke-width="1">${gridH}${gridV}</g>
   <rect x="0" y="0" width="6" height="${H}" rx="3" fill="url(#al)"/>
-  <text x="${W-20}" y="30" font-family="Poppins" font-size="13" font-weight="bold" fill="#a78bfa" text-anchor="end">VEXOR</text>
+  <text x="${W-20}" y="30" font-family="Poppins" font-size="13" fill="#a78bfa" text-anchor="end">VEXOR</text>
   ${avatarEl}
   <circle cx="82" cy="${H/2}" r="73" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
   <circle cx="82" cy="${H/2}" r="70" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
   <rect x="180" y="56" width="90" height="24" rx="5" fill="${roleBg}" stroke="${roleBorder}" stroke-width="1"/>
-  <text x="191" y="74" font-family="Poppins" font-size="11" font-weight="bold" fill="${roleColor}">${esc(role.toUpperCase())}</text>
-  <text x="180" y="128" font-family="Poppins" font-size="26" font-weight="bold" fill="#ededf5">${esc(trunc(name, 22))}</text>
+  <text x="191" y="74" font-family="Poppins" font-size="11" fill="${roleColor}">${esc(role.toUpperCase())}</text>
+  <text x="180" y="128" font-family="Poppins" font-size="26" fill="#ededf5">${esc(trunc(name, 22))}</text>
   <rect x="180" y="140" width="${W-210}" height="1" fill="#a78bfa" opacity="0.35"/>
-  <text x="180" y="165" font-family="Poppins" font-size="11" font-weight="bold" fill="#6b6b8a">NOMOR WA</text>
-  <text x="180" y="186" font-family="Poppins" font-size="15" font-weight="bold" fill="#ededf5">+${esc(number)}</text>
+  <text x="180" y="165" font-family="Poppins" font-size="11" fill="#6b6b8a">NOMOR WA</text>
+  <text x="180" y="186" font-family="Poppins" font-size="15" fill="#ededf5">+${esc(number)}</text>
   ${bioEl}
   <rect x="0" y="${H-42}" width="${W}" height="42" fill="rgba(167,139,250,0.05)"/>
   <rect x="0" y="${H-42}" width="${W}" height="1" fill="rgba(167,139,250,0.12)"/>
-  <text x="20" y="${H-14}" font-family="Poppins" font-size="11" font-weight="bold" fill="#3d3d5a">vexor.api id-card</text>
-  <text x="${W-20}" y="${H-14}" font-family="Poppins" font-size="11" font-weight="bold" fill="#3d3d5a" text-anchor="end">${esc(date)}</text>
+  <text x="20" y="${H-14}" font-family="Poppins" font-size="11" fill="#3d3d5a">vexor.api id-card</text>
+  <text x="${W-20}" y="${H-14}" font-family="Poppins" font-size="11" fill="#3d3d5a" text-anchor="end">${esc(date)}</text>
 </svg>`;
 }
 
@@ -119,7 +114,12 @@ export default async function handler(req, res) {
 
   try {
     const svg = buildSvg({ name, number: formatted, role, bio, avatarB64, initials, date });
-    const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
+
+    // Render SVG → PNG via resvg-js (proper font support)
+    const resvg = new Resvg(svg, {
+      font: { loadSystemFonts: false, fontBuffers: [FONT_BUF] }
+    });
+    const pngBuffer = Buffer.from(resvg.render().asPng());
 
     return ok(res, {
       imageBase64: pngBuffer.toString('base64'),
