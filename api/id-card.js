@@ -1,67 +1,92 @@
 import { checkApiKey, ok, fail } from './_lib.js';
-import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Register fonts — path relatif ke root project di Vercel
-let fontsRegistered = false;
-function ensureFonts() {
-  if (fontsRegistered) return;
-  try {
-    const base = path.join(__dirname, '..', 'public', 'fonts');
-    GlobalFonts.registerFromPath(path.join(base, 'Poppins-Regular.ttf'), 'Poppins');
-    GlobalFonts.registerFromPath(path.join(base, 'Poppins-Bold.ttf'), 'Poppins');
-    fontsRegistered = true;
-  } catch (e) {
-    console.warn('Font register failed, fallback to Liberation Sans:', e.message);
-  }
-}
-
-const FONT = 'Poppins, Liberation Sans, FreeSans, sans-serif';
 const W = 600;
 const H = 340;
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(' ');
-  let line = '';
-  for (const word of words) {
-    const test = line + word + ' ';
-    if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line.trim(), x, y);
-      line = word + ' ';
-      y += lineHeight;
-    } else {
-      line = test;
-    }
-  }
-  if (line.trim()) ctx.fillText(line.trim(), x, y);
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h);
-  ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r);
-  ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
+function trunc(str, max) {
+  return str.length > max ? str.slice(0, max) + '...' : str;
+}
+
+async function fetchAvatarBase64(url) {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const resized = await sharp(buf).resize(132, 132).jpeg({ quality: 85 }).toBuffer();
+    return 'data:image/jpeg;base64,' + resized.toString('base64');
+  } catch {
+    return null;
+  }
+}
+
+function buildSvg({ name, number, role, bio, avatarB64, initials, date }) {
+  const isOwner   = role === 'Owner';
+  const roleColor  = isOwner ? '#fbbf24' : '#a78bfa';
+  const roleBg     = isOwner ? 'rgba(251,191,36,0.15)' : 'rgba(167,139,250,0.15)';
+  const roleBorder = isOwner ? 'rgba(251,191,36,0.5)'  : 'rgba(109,40,217,0.6)';
+
+  const avatarEl = avatarB64
+    ? `<image href="${avatarB64}" x="16" y="${H/2 - 66}" width="132" height="132" preserveAspectRatio="xMidYMid slice" clip-path="url(#ac)"/>`
+    : `<circle cx="82" cy="${H/2}" r="66" fill="#2a1f4a"/>
+       <text x="82" y="${H/2 + 15}" font-family="Arial" font-size="40" font-weight="bold"
+             fill="${roleColor}" text-anchor="middle">${esc(initials)}</text>`;
+
+  const bioEl = bio && bio.trim()
+    ? `<text x="180" y="212" font-family="Arial" font-size="11" fill="#6b6b8a">BIO</text>
+       <text x="180" y="230" font-family="Arial" font-size="13" fill="#9d9dbb">${esc(trunc(bio, 55))}</text>`
+    : '';
+
+  const gridH = Array.from({length: 21}, (_, i) =>
+    `<line x1="${i*30}" y1="0" x2="${i*30}" y2="${H}"/>`).join('');
+  const gridV = Array.from({length: 12}, (_, i) =>
+    `<line x1="0" y1="${i*30}" x2="${W}" y2="${i*30}"/>`).join('');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f0f1a"/>
+      <stop offset="100%" stop-color="#1a1030"/>
+    </linearGradient>
+    <linearGradient id="al" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <clipPath id="ac"><circle cx="82" cy="${H/2}" r="66"/></clipPath>
+    <clipPath id="cc"><rect width="${W}" height="${H}" rx="20"/></clipPath>
+  </defs>
+  <rect width="${W}" height="${H}" rx="20" fill="url(#bg)"/>
+  <g clip-path="url(#cc)" stroke="rgba(167,139,250,0.04)" stroke-width="1">${gridH}${gridV}</g>
+  <rect x="0" y="0" width="6" height="${H}" rx="3" fill="url(#al)"/>
+  <text x="${W-20}" y="30" font-family="Arial" font-size="13" font-weight="bold" fill="#a78bfa" text-anchor="end">VEXOR</text>
+  ${avatarEl}
+  <circle cx="82" cy="${H/2}" r="73" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
+  <circle cx="82" cy="${H/2}" r="70" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+  <rect x="180" y="56" width="80" height="24" rx="5" fill="${roleBg}" stroke="${roleBorder}" stroke-width="1"/>
+  <text x="191" y="74" font-family="Arial" font-size="11" font-weight="bold" fill="${roleColor}">${esc(role.toUpperCase())}</text>
+  <text x="180" y="128" font-family="Arial" font-size="26" font-weight="bold" fill="#ededf5">${esc(trunc(name, 22))}</text>
+  <rect x="180" y="140" width="${W-210}" height="1" fill="#a78bfa" opacity="0.35"/>
+  <text x="180" y="165" font-family="Arial" font-size="11" fill="#6b6b8a">NOMOR WA</text>
+  <text x="180" y="186" font-family="Arial" font-size="15" font-weight="bold" fill="#ededf5">+${esc(number)}</text>
+  ${bioEl}
+  <rect x="0" y="${H-42}" width="${W}" height="42" fill="rgba(167,139,250,0.05)"/>
+  <rect x="0" y="${H-42}" width="${W}" height="1" fill="rgba(167,139,250,0.12)"/>
+  <text x="20" y="${H-14}" font-family="Arial" font-size="11" fill="#3d3d5a">vexor.api id-card</text>
+  <text x="${W-20}" y="${H-14}" font-family="Arial" font-size="11" fill="#3d3d5a" text-anchor="end">${esc(date)}</text>
+</svg>`;
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'x-api-key, Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return fail(res, 'Method not allowed', 405);
   if (!checkApiKey(req, res)) return;
-
-  ensureFonts();
+  if (req.method !== 'POST') return fail(res, 'Method not allowed', 405);
 
   const { number, role = 'Member', bio = '' } = req.body || {};
   let { name, avatar } = req.body || {};
@@ -69,11 +94,8 @@ export default async function handler(req, res) {
   if (!number) return fail(res, 'number is required');
 
   const formatted = number.replace(/[^0-9]/g, '');
-
-  // Fallback name
   if (!name || !name.trim()) name = '+' + formatted;
 
-  // Fallback avatar via ui-avatars (reliable, no CORS)
   if (!avatar || !avatar.trim()) {
     const initials = name === '+' + formatted
       ? formatted.slice(-2)
@@ -81,147 +103,25 @@ export default async function handler(req, res) {
     avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=200&background=2a1f4a&color=a78bfa&bold=true&format=png`;
   }
 
+  const initials = (name === '+' + formatted)
+    ? formatted.slice(-2)
+    : name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+
+  const date = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  const avatarB64 = await fetchAvatarBase64(avatar);
+
   try {
-    const canvas = createCanvas(W, H);
-    const ctx = canvas.getContext('2d');
-
-    // ── Background ──
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#0f0f1a');
-    bg.addColorStop(1, '#1a1030');
-    ctx.fillStyle = bg;
-    roundRect(ctx, 0, 0, W, H, 20);
-    ctx.fill();
-
-    // ── Subtle grid pattern ──
-    ctx.strokeStyle = 'rgba(167,139,250,0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-    for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-
-    // ── Left accent bar ──
-    const accent = ctx.createLinearGradient(0, 0, 0, H);
-    accent.addColorStop(0, '#a78bfa');
-    accent.addColorStop(1, '#6d28d9');
-    ctx.fillStyle = accent;
-    roundRect(ctx, 0, 0, 6, H, 3);
-    ctx.fill();
-
-    // ── Brand top-right ──
-    ctx.font = `bold 13px ${FONT}`;
-    ctx.fillStyle = '#a78bfa';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('⚡ VEXOR', W - 20, 28);
-
-    // ── Avatar ──
-    const AX = 82, AY = H / 2, AR = 66;
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(AX, AY, AR, 0, Math.PI * 2);
-    ctx.clip();
-    try {
-      const img = await loadImage(avatar);
-      ctx.drawImage(img, AX - AR, AY - AR, AR * 2, AR * 2);
-    } catch {
-      ctx.fillStyle = '#2a1f4a';
-      ctx.fill();
-      ctx.font = `bold 38px ${FONT}`;
-      ctx.fillStyle = '#a78bfa';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(name[0]?.toUpperCase() || '?', AX, AY);
-    }
-    ctx.restore();
-
-    // ── Avatar ring ──
-    ctx.beginPath();
-    ctx.arc(AX, AY, AR + 4, 0, Math.PI * 2);
-    ctx.strokeStyle = '#7c3aed';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(AX, AY, AR + 7, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(167,139,250,0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // ── Role badge ──
-    const roleText = role.toUpperCase();
-    ctx.font = `bold 11px ${FONT}`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    const roleW = ctx.measureText(roleText).width + 22;
-    ctx.fillStyle = 'rgba(167,139,250,0.15)';
-    roundRect(ctx, 180, 56, roleW, 24, 5);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(109,40,217,0.6)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = '#c4b5fd';
-    ctx.fillText(roleText, 191, 73);
-
-    // ── Name ──
-    ctx.font = `bold 26px ${FONT}`;
-    ctx.fillStyle = '#ededf5';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    const displayName = name.length > 22 ? name.slice(0, 22) + '…' : name;
-    ctx.fillText(displayName, 180, 128);
-
-    // ── Divider ──
-    const divGrad = ctx.createLinearGradient(180, 0, W - 30, 0);
-    divGrad.addColorStop(0, 'rgba(167,139,250,0.4)');
-    divGrad.addColorStop(1, 'rgba(167,139,250,0)');
-    ctx.fillStyle = divGrad;
-    ctx.fillRect(180, 140, W - 210, 1);
-
-    // ── Number ──
-    ctx.font = `12px ${FONT}`;
-    ctx.fillStyle = '#6b6b8a';
-    ctx.fillText('NOMOR WA', 180, 165);
-    ctx.font = `bold 15px ${FONT}`;
-    ctx.fillStyle = '#ededf5';
-    ctx.fillText('+' + formatted, 180, 186);
-
-    // ── Bio ──
-    if (bio && bio.trim()) {
-      ctx.font = `12px ${FONT}`;
-      ctx.fillStyle = '#6b6b8a';
-      ctx.fillText('BIO', 180, 212);
-      ctx.font = `13px ${FONT}`;
-      ctx.fillStyle = '#9d9dbb';
-      wrapText(ctx, bio.slice(0, 80), 180, 230, W - 215, 18);
-    }
-
-    // ── Bottom strip ──
-    ctx.fillStyle = 'rgba(167,139,250,0.05)';
-    ctx.fillRect(0, H - 42, W, 42);
-
-    // bottom divider line
-    ctx.fillStyle = 'rgba(167,139,250,0.12)';
-    ctx.fillRect(0, H - 42, W, 1);
-
-    ctx.font = `11px ${FONT}`;
-    ctx.fillStyle = '#3d3d5a';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('vexor.api · id-card', 20, H - 21);
-    ctx.textAlign = 'right';
-    ctx.fillText(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }), W - 20, H - 21);
-
-    const buffer = canvas.toBuffer('image/png');
-    const base64 = buffer.toString('base64');
+    const svg = buildSvg({ name, number: formatted, role, bio, avatarB64, initials, date });
+    const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
 
     return ok(res, {
-      imageBase64: base64,
+      imageBase64: pngBuffer.toString('base64'),
       mimeType: 'image/png',
       width: W,
       height: H,
-      meta: { name, number: '+' + formatted, role, avatarAuto: !req.body?.avatar, nameAuto: !req.body?.name },
+      meta: { name, number: '+' + formatted, role, avatarFetched: !!avatarB64 },
     });
-
   } catch (e) {
-    return fail(res, 'Canvas render error: ' + e.message, 500);
+    return fail(res, 'Render error: ' + e.message, 500);
   }
 }
