@@ -1,5 +1,19 @@
 import { checkApiKey, ok, fail } from './_lib.js';
 import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load & cache font as base64 at startup
+let FONT_B64 = '';
+try {
+  const fontPath = path.join(__dirname, '..', 'public', 'fonts', 'Poppins-Bold.ttf');
+  FONT_B64 = fs.readFileSync(fontPath).toString('base64');
+} catch {
+  // font not found, fallback to system font
+}
 
 const W = 600;
 const H = 340;
@@ -29,29 +43,35 @@ async function fetchAvatarBase64(url) {
 }
 
 function buildSvg({ name, number, role, bio, avatarB64, initials, date }) {
-  const isOwner   = role === 'Owner';
+  const isOwner    = role === 'Owner';
   const roleColor  = isOwner ? '#fbbf24' : '#a78bfa';
   const roleBg     = isOwner ? 'rgba(251,191,36,0.15)' : 'rgba(167,139,250,0.15)';
   const roleBorder = isOwner ? 'rgba(251,191,36,0.5)'  : 'rgba(109,40,217,0.6)';
+  const FONT       = FONT_B64 ? 'Poppins' : 'Arial';
+
+  const fontFace = FONT_B64
+    ? `@font-face { font-family: 'Poppins'; font-weight: bold;
+        src: url('data:font/truetype;base64,${FONT_B64}') format('truetype'); }`
+    : '';
 
   const avatarEl = avatarB64
-    ? `<image href="${avatarB64}" x="16" y="${H/2 - 66}" width="132" height="132" preserveAspectRatio="xMidYMid slice" clip-path="url(#ac)"/>`
+    ? `<image href="${avatarB64}" x="16" y="${H/2-66}" width="132" height="132"
+         preserveAspectRatio="xMidYMid slice" clip-path="url(#ac)"/>`
     : `<circle cx="82" cy="${H/2}" r="66" fill="#2a1f4a"/>
-       <text x="82" y="${H/2 + 15}" font-family="Arial" font-size="40" font-weight="bold"
+       <text x="82" y="${H/2+15}" font-family="${FONT}" font-size="40" font-weight="bold"
              fill="${roleColor}" text-anchor="middle">${esc(initials)}</text>`;
 
   const bioEl = bio && bio.trim()
-    ? `<text x="180" y="212" font-family="Arial" font-size="11" fill="#6b6b8a">BIO</text>
-       <text x="180" y="230" font-family="Arial" font-size="13" fill="#9d9dbb">${esc(trunc(bio, 55))}</text>`
+    ? `<text x="180" y="212" font-family="${FONT}" font-size="11" font-weight="bold" fill="#6b6b8a">BIO</text>
+       <text x="180" y="230" font-family="${FONT}" font-size="13" font-weight="bold" fill="#9d9dbb">${esc(trunc(bio, 55))}</text>`
     : '';
 
-  const gridH = Array.from({length: 21}, (_, i) =>
-    `<line x1="${i*30}" y1="0" x2="${i*30}" y2="${H}"/>`).join('');
-  const gridV = Array.from({length: 12}, (_, i) =>
-    `<line x1="0" y1="${i*30}" x2="${W}" y2="${i*30}"/>`).join('');
+  const gridH = Array.from({length: 21}, (_, i) => `<line x1="${i*30}" y1="0" x2="${i*30}" y2="${H}"/>`).join('');
+  const gridV = Array.from({length: 12}, (_, i) => `<line x1="0" y1="${i*30}" x2="${W}" y2="${i*30}"/>`).join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}">
   <defs>
+    <style>${fontFace}</style>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0f0f1a"/>
       <stop offset="100%" stop-color="#1a1030"/>
@@ -66,21 +86,21 @@ function buildSvg({ name, number, role, bio, avatarB64, initials, date }) {
   <rect width="${W}" height="${H}" rx="20" fill="url(#bg)"/>
   <g clip-path="url(#cc)" stroke="rgba(167,139,250,0.04)" stroke-width="1">${gridH}${gridV}</g>
   <rect x="0" y="0" width="6" height="${H}" rx="3" fill="url(#al)"/>
-  <text x="${W-20}" y="30" font-family="Arial" font-size="13" font-weight="bold" fill="#a78bfa" text-anchor="end">VEXOR</text>
+  <text x="${W-20}" y="30" font-family="${FONT}" font-size="13" font-weight="bold" fill="#a78bfa" text-anchor="end">VEXOR</text>
   ${avatarEl}
   <circle cx="82" cy="${H/2}" r="73" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
   <circle cx="82" cy="${H/2}" r="70" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
-  <rect x="180" y="56" width="80" height="24" rx="5" fill="${roleBg}" stroke="${roleBorder}" stroke-width="1"/>
-  <text x="191" y="74" font-family="Arial" font-size="11" font-weight="bold" fill="${roleColor}">${esc(role.toUpperCase())}</text>
-  <text x="180" y="128" font-family="Arial" font-size="26" font-weight="bold" fill="#ededf5">${esc(trunc(name, 22))}</text>
+  <rect x="180" y="56" width="90" height="24" rx="5" fill="${roleBg}" stroke="${roleBorder}" stroke-width="1"/>
+  <text x="191" y="74" font-family="${FONT}" font-size="11" font-weight="bold" fill="${roleColor}">${esc(role.toUpperCase())}</text>
+  <text x="180" y="128" font-family="${FONT}" font-size="26" font-weight="bold" fill="#ededf5">${esc(trunc(name, 22))}</text>
   <rect x="180" y="140" width="${W-210}" height="1" fill="#a78bfa" opacity="0.35"/>
-  <text x="180" y="165" font-family="Arial" font-size="11" fill="#6b6b8a">NOMOR WA</text>
-  <text x="180" y="186" font-family="Arial" font-size="15" font-weight="bold" fill="#ededf5">+${esc(number)}</text>
+  <text x="180" y="165" font-family="${FONT}" font-size="11" font-weight="bold" fill="#6b6b8a">NOMOR WA</text>
+  <text x="180" y="186" font-family="${FONT}" font-size="15" font-weight="bold" fill="#ededf5">+${esc(number)}</text>
   ${bioEl}
   <rect x="0" y="${H-42}" width="${W}" height="42" fill="rgba(167,139,250,0.05)"/>
   <rect x="0" y="${H-42}" width="${W}" height="1" fill="rgba(167,139,250,0.12)"/>
-  <text x="20" y="${H-14}" font-family="Arial" font-size="11" fill="#3d3d5a">vexor.api id-card</text>
-  <text x="${W-20}" y="${H-14}" font-family="Arial" font-size="11" fill="#3d3d5a" text-anchor="end">${esc(date)}</text>
+  <text x="20" y="${H-14}" font-family="${FONT}" font-size="11" font-weight="bold" fill="#3d3d5a">vexor.api id-card</text>
+  <text x="${W-20}" y="${H-14}" font-family="${FONT}" font-size="11" font-weight="bold" fill="#3d3d5a" text-anchor="end">${esc(date)}</text>
 </svg>`;
 }
 
@@ -103,7 +123,7 @@ export default async function handler(req, res) {
     avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=200&background=2a1f4a&color=a78bfa&bold=true&format=png`;
   }
 
-  const initials = (name === '+' + formatted)
+  const initials = name === '+' + formatted
     ? formatted.slice(-2)
     : name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
 
