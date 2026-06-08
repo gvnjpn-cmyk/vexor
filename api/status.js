@@ -13,6 +13,10 @@ export default function handler(req, res) {
       { method: 'POST', path: '/api/downloader',    auth: true,  desc: 'Download TikTok/YouTube/IG/Twitter' },
       { method: 'POST', path: '/api/ai-reply',      auth: true,  desc: 'Generate AI reply via Claude' },
       { method: 'POST', path: '/api/id-card',       auth: true,  desc: 'Generate kartu ID sebagai gambar PNG' },
+      { method: 'POST', path: '/api/leaderboard',   auth: true,  desc: 'Generate gambar leaderboard/top member' },
+      { method: 'GET',  path: '/api/weather',       auth: true,  desc: 'Card cuaca dari nama kota (?city=Jakarta)' },
+      { method: 'POST', path: '/api/quote-card',    auth: true,  desc: 'Generate gambar quote/kutipan' },
+      { method: 'POST', path: '/api/ai-coder',      auth: true,  desc: 'Generate kode dari prompt, kirim sebagai ZIP' },
     ],
     timestamp: new Date().toISOString(),
   });
