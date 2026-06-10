@@ -4,36 +4,217 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vexor API</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#07080d;--surface:#0e0f18;--card:#13141f;--border:#1c1d2e;
   --accent:#7c6fff;--text:#ecedf5;--muted:#555670;--soft:#8889a8;
-  --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
+  --green:#22c55e;--mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
 body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(124,111,255,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
-
-/* NAVBAR */
 header{position:sticky;top:0;z-index:100;background:rgba(7,8,13,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.navbar{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 20px}
+.navbar{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 20px}
 .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
 .logo-mark{width:28px;height:28px;background:linear-gradient(135deg,#7c6fff,#4f46e5);border-radius:7px;display:grid;place-items:center;font-size:13px}
 .logo-name{font-family:var(--mono);font-size:13px;font-weight:600}
+.logo-name span{color:var(--accent)}
 .nav-right{display:flex;gap:3px}
 .nav-item{font-size:12px;color:var(--soft);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .15s}
 .nav-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
-
-main{max-width:960px;margin:0 auto;padding:36px 20px 60px;position:relative;z-index:1}
-
-.hero{padding:32px 0;margin-bottom:36px}
+main{max-width:1000px;margin:0 auto;padding:40px 20px 80px;position:relative;z-index:1}
+.hero{padding-bottom:36px;border-bottom:1px solid var(--border);margin-bottom:40px}
 .hero-tag{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.hero h1{font-size:36px;font-weight:700;line-height:1.2;margin-bottom:12px}
+.hero h1{font-size:38px;font-weight:700;line-height:1.2;margin-bottom:12px}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,#7c6fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{color:var(--soft);font-size:14px;line-height:1.7;max-width:520px}
+.hero p{color:var(--soft);font-size:14px;line-height:1.7;max-width:520px;margin-bottom:20px}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.hstat{text-align:left}
+.hstat-num{font-size:24px;font-weight:700;color:var(--accent)}
+.hstat-label{font-size:11px;color:var(--muted);margin-top:2px}
 
+.sec-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:40px}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.cat-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.cat-icon{font-size:20px}
+.cat-name{font-weight:600;font-size:14px}
+.cat-count{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--surface);padding:2px 8px;border-radius:20px}
+.ep-list{display:flex;flex-direction:column;gap:4px}
+.ep-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;transition:background .15s}
+.ep-item:hover{background:var(--surface)}
+.method{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;min-width:36px;text-align:center}
+.method.get{background:rgba(34,197,94,.12);color:#22c55e}
+.method.post{background:rgba(124,111,255,.12);color:#7c6fff}
+.ep-path{font-family:var(--mono);font-size:11px;color:var(--soft)}
+.ep-desc{font-size:11px;color:var(--muted);margin-left:auto}
+
+/* AUTH BOX */
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:40px}
+.auth-box h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.auth-box p{font-size:12px;color:var(--soft);line-height:1.7;margin-bottom:12px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:#a78bfa;overflow-x:auto}
+
+footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="navbar">
+    <a href="/" class="logo">
+      <div class="logo-mark">⚡</div>
+      <span class="logo-name">Ve<span>xor</span></span>
+    </a>
+    <nav class="nav-right">
+      <a href="/" class="nav-item">Docs</a>
+      <a href="/dashboard.html" class="nav-item">Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-tag">WhatsApp Bot · REST API</div>
+    <h1>The <em>Vexor</em><br>API Platform</h1>
+    <p>Platform API lengkap untuk WhatsApp bot. Image generation, AI tools, media, utilities — semua dalam satu endpoint.</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num">32</div><div class="hstat-label">Endpoints</div></div>
+      <div class="hstat"><div class="hstat-num">7</div><div class="hstat-label">Kategori</div></div>
+      <div class="hstat"><div class="hstat-num">Free</div><div class="hstat-label">Hobby Plan</div></div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="sec-title">Authentication</div>
+  <div class="auth-box">
+    <h3>API Key</h3>
+    <p>Semua endpoint membutuhkan API key. Kirim via header atau query param.</p>
+    <div class="code-block">
+# Header (recommended)
+x-api-key: YOUR_API_KEY
+
+# Query param
+?apikey=YOUR_API_KEY
+
+# Authorization
+Authorization: Bearer YOUR_API_KEY</div>
+  </div>
+
+  <!-- ENDPOINTS BY CATEGORY -->
+  <div class="sec-title">Semua Endpoint</div>
+  <div class="cat-grid">
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">💬</div>
+        <div class="cat-name">Messaging</div>
+        <div class="cat-count">3 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/send-message</span><span class="ep-desc">Kirim teks</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/send-media</span><span class="ep-desc">Kirim media</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/groups</span><span class="ep-desc">Daftar grup</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">🖼️</div>
+        <div class="cat-name">Image Generation</div>
+        <div class="cat-count">7 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/id-card</span><span class="ep-desc">Kartu ID</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/leaderboard</span><span class="ep-desc">Leaderboard</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/quote-card</span><span class="ep-desc">Quote card</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/quote-sticker</span><span class="ep-desc">Quote stiker</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/qr-code</span><span class="ep-desc">QR code</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/barcode</span><span class="ep-desc">Barcode</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/gradient-bg</span><span class="ep-desc">Gradient BG</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">🤖</div>
+        <div class="cat-name">AI & Tools</div>
+        <div class="cat-count">3 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/ai-reply</span><span class="ep-desc">AI reply</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/ai-coder</span><span class="ep-desc">AI code gen</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/ascii-art</span><span class="ep-desc">ASCII art</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">🌍</div>
+        <div class="cat-name">Data & Info</div>
+        <div class="cat-count">5 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/weather</span><span class="ep-desc">Cuaca kota</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/currency</span><span class="ep-desc">Konversi mata uang</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/ip-info</span><span class="ep-desc">Info IP address</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/color-info</span><span class="ep-desc">Info warna HEX</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/text-stats</span><span class="ep-desc">Statistik teks</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">🎲</div>
+        <div class="cat-name">Random & Fun</div>
+        <div class="cat-count">7 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/jokes</span><span class="ep-desc">Random joke</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/random-facts</span><span class="ep-desc">Fakta random</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/philosopher-quotes</span><span class="ep-desc">Kutipan filsuf</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/anime-quotes</span><span class="ep-desc">Kutipan anime</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/random-name</span><span class="ep-desc">Nama random</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/username-gen</span><span class="ep-desc">Generate username</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/short-url</span><span class="ep-desc">Perpendek URL</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">⚙️</div>
+        <div class="cat-name">Media Tools</div>
+        <div class="cat-count">3 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/sticker</span><span class="ep-desc">Buat stiker</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/downloader</span><span class="ep-desc">Download media</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/status</span><span class="ep-desc">Status API</span></div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-header">
+        <div class="cat-icon">📊</div>
+        <div class="cat-name">Dashboard API</div>
+        <div class="cat-count">4 endpoints</div>
+      </div>
+      <div class="ep-list">
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/dash/status</span><span class="ep-desc">Status bot</span></div>
+        <div class="ep-item"><span class="method get">GET</span><span class="ep-path">/dash/plugins</span><span class="ep-desc">List plugin</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/dash/upload</span><span class="ep-desc">Upload plugin</span></div>
+        <div class="ep-item"><span class="method post">POST</span><span class="ep-path">/dash/toggle</span><span class="ep-desc">Toggle plugin</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>Vexor API Platform · v1.0.0 · 32 Endpoints · WhatsApp Bot</footer>
+</body>
+</html>
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:32px 0}
 .feature-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
 .feature-icon{font-size:24px;margin-bottom:8px}
