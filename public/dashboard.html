@@ -374,40 +374,40 @@ function switchTab(name, btn) {
   if(name==='analytics') initCharts();
 }
 
-// ENDPOINTS LIST
+// ENDPOINTS LIST — b = dummy body untuk health check POST
 const ENDPOINTS = [
   {p:'/status', m:'GET'},
-  {p:'/send-message', m:'POST'},
-  {p:'/send-media', m:'POST'},
+  {p:'/send-message', m:'POST', b:{number:'628000000000',message:'test'}},
+  {p:'/send-media', m:'POST', b:{number:'628000000000',url:'https://example.com/img.jpg'}},
   {p:'/groups', m:'GET'},
-  {p:'/sticker', m:'POST'},
-  {p:'/downloader', m:'POST'},
-  {p:'/ai-reply', m:'POST'},
-  {p:'/ai-coder', m:'POST'},
-  {p:'/id-card', m:'POST'},
-  {p:'/leaderboard', m:'POST'},
-  {p:'/quote-card', m:'POST'},
-  {p:'/quote-sticker', m:'POST'},
-  {p:'/weather', m:'GET'},
+  {p:'/sticker', m:'POST', b:{url:'https://example.com/img.jpg'}},
+  {p:'/downloader', m:'POST', b:{url:'https://www.tiktok.com/@test/video/1'}},
+  {p:'/ai-reply', m:'POST', b:{prompt:'hi'}},
+  {p:'/ai-coder', m:'POST', b:{prompt:'hello world'}},
+  {p:'/id-card', m:'POST', b:{number:'628000000000',name:'Test'}},
+  {p:'/leaderboard', m:'POST', b:{members:[{name:'A',score:100}]}},
+  {p:'/quote-card', m:'POST', b:{text:'test',author:'test'}},
+  {p:'/quote-sticker', m:'POST', b:{text:'test',name:'test',color:'black'}},
+  {p:'/weather', m:'GET', q:'?city=Jakarta'},
   {p:'/philosopher-quotes', m:'GET'},
   {p:'/anime-quotes', m:'GET'},
-  {p:'/qr-code', m:'POST'},
-  {p:'/barcode', m:'POST'},
-  {p:'/username-gen', m:'POST'},
+  {p:'/qr-code', m:'POST', b:{text:'test'}},
+  {p:'/barcode', m:'POST', b:{text:'123456'}},
+  {p:'/username-gen', m:'POST', b:{name:'test'}},
   {p:'/jokes', m:'GET'},
-  {p:'/currency', m:'GET'},
-  {p:'/ascii-art', m:'POST'},
+  {p:'/currency', m:'GET', q:'?from=USD&to=IDR&amount=1'},
+  {p:'/ascii-art', m:'POST', b:{text:'Hi'}},
   {p:'/random-name', m:'GET'},
-  {p:'/gradient-bg', m:'POST'},
-  {p:'/text-stats', m:'POST'},
-  {p:'/ip-info', m:'GET'},
-  {p:'/color-info', m:'GET'},
-  {p:'/short-url', m:'POST'},
+  {p:'/gradient-bg', m:'POST', b:{color1:'#7c6fff',color2:'#4f46e5'}},
+  {p:'/text-stats', m:'POST', b:{text:'hello world'}},
+  {p:'/ip-info', m:'GET', q:'?ip=8.8.8.8'},
+  {p:'/color-info', m:'GET', q:'?hex=7c6fff'},
+  {p:'/short-url', m:'POST', b:{url:'https://google.com'}},
   {p:'/random-facts', m:'GET'},
   {p:'/dash/status', m:'GET'},
   {p:'/dash/plugins', m:'GET'},
-  {p:'/dash/upload', m:'POST'},
-  {p:'/dash/toggle', m:'POST'},
+  {p:'/dash/upload', m:'POST', b:{filename:'test.js',content:'dGVzdA=='}},
+  {p:'/dash/toggle', m:'POST', b:{filename:'test.js',enable:true}},
 ];
 
 let results = {};
@@ -429,13 +429,18 @@ async function checkAll() {
     const id = 'ep-'+ep.p.replace(/\//g,'-');
     const start = Date.now();
     try {
-      const r = await fetch(`${BASE}${ep.p}`, {
+      const url = `${BASE}${ep.p}${ep.q||''}`;
+      const opts = {
         method: ep.m,
-        headers: {'x-api-key': KEY},
-        signal: AbortSignal.timeout(5000)
-      });
+        headers: ep.m==='POST' ? apiH : {'x-api-key': KEY},
+        signal: AbortSignal.timeout(8000)
+      };
+      if(ep.m==='POST' && ep.b) opts.body = JSON.stringify(ep.b);
+      const r = await fetch(url, opts);
       const ms = Date.now()-start;
       totalMs += ms;
+      // 200-499 = OK (400 = bad req tapi endpoint exist, 200 = success)
+      // 500+ = error server
       const isOk = r.status < 500;
       if(isOk) ok++;
       results[ep.p] = {ok:isOk, ms, status: r.status};
@@ -445,6 +450,8 @@ async function checkAll() {
         el.querySelector('.ep-meta').textContent = `${ep.m} · ${r.status} · ${ms}ms`;
       }
     } catch(e) {
+      const ms = Date.now()-start;
+      totalMs += ms;
       const el = document.getElementById(id);
       if(el) {
         el.querySelector('.dot').className = 'dot err';
