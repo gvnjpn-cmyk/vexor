@@ -10,622 +10,116 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#07080d;--surface:#0e0f18;--card:#13141f;--border:#1c1d2e;
-  --accent:#7c6fff;--accent-dim:#3d3680;--accent-glow:rgba(124,111,255,.1);
-  --text:#ecedf5;--muted:#555670;--soft:#8889a8;
-  --green:#22c55e;--blue:#38bdf8;--yellow:#fbbf24;--red:#f87171;
+  --accent:#7c6fff;--text:#ecedf5;--muted:#555670;--soft:#8889a8;
   --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
-  --r:10px;
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(124,111,255,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
 
-/* Ambient glow top */
-body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(124,111,255,.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+/* NAVBAR */
+header{position:sticky;top:0;z-index:100;background:rgba(7,8,13,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.navbar{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 20px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.logo-mark{width:28px;height:28px;background:linear-gradient(135deg,#7c6fff,#4f46e5);border-radius:7px;display:grid;place-items:center;font-size:13px}
+.logo-name{font-family:var(--mono);font-size:13px;font-weight:600}
+.nav-right{display:flex;gap:3px}
+.nav-item{font-size:12px;color:var(--soft);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .15s}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
 
-/* ── HEADER ── */
-header{position:sticky;top:0;z-index:100;background:rgba(7,8,13,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.header-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:14px;height:52px;padding:0 20px}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
-.logo-mark{width:28px;height:28px;background:linear-gradient(135deg,#7c6fff,#4f46e5);border-radius:7px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
-.logo-name{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text);letter-spacing:.5px}
-.logo-name span{color:var(--accent)}
-.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.status-pill{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
-.status-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s ease infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* ── LAYOUT ── */
 main{max-width:960px;margin:0 auto;padding:36px 20px 60px;position:relative;z-index:1}
 
-/* ── HERO ── */
-.hero{padding:32px 0 36px;border-bottom:1px solid var(--border);margin-bottom:36px}
+.hero{padding:32px 0;margin-bottom:36px}
 .hero-tag{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.hero h1{font-size:clamp(24px,4vw,40px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:10px}
+.hero h1{font-size:36px;font-weight:700;line-height:1.2;margin-bottom:12px}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,#7c6fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{color:var(--soft);font-size:14px;max-width:480px;line-height:1.7}
+.hero p{color:var(--soft);font-size:14px;line-height:1.7;max-width:520px}
 
-/* ── API KEY BAR ── */
-.key-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.key-bar-label{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:1px;text-transform:uppercase}
-.key-input{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 11px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border .2s}
-.key-input:focus{border-color:var(--accent-dim)}
-.key-input::placeholder{color:var(--muted)}
-.btn-save{background:var(--accent);color:#fff;font-family:var(--sans);font-weight:700;font-size:11px;padding:7px 16px;border:none;border-radius:6px;cursor:pointer;transition:opacity .15s;white-space:nowrap}
-.btn-save:hover{opacity:.85}
-.save-ok{font-family:var(--mono);font-size:11px;color:var(--green);display:none}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:32px 0}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.feature-icon{font-size:24px;margin-bottom:8px}
+.feature-title{font-weight:600;font-size:13px;margin-bottom:4px}
+.feature-desc{font-size:12px;color:var(--soft);line-height:1.5}
 
-/* ── CATEGORY ── */
-.cat{margin-bottom:32px}
-.cat-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.cat-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.cat-line{flex:1;height:1px;background:var(--border)}
-
-/* ── ENDPOINT CARDS ── */
-.ep-grid{display:flex;flex-direction:column;gap:8px}
-.ep{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
-.ep:hover{border-color:#252637}
-.ep-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
-.method{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;min-width:40px;text-align:center;flex-shrink:0}
-.m-post{background:rgba(56,189,248,.1);color:#38bdf8;border:1px solid rgba(56,189,248,.2)}
-.m-get{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
-.ep-path{font-family:var(--mono);font-size:12px;color:var(--soft);flex:1;transition:color .2s}
-.ep:hover .ep-path{color:var(--text)}
-.ep-desc{font-size:12px;color:var(--muted);display:none}
-@media(min-width:600px){.ep-desc{display:block}}
-.ep-chev{color:var(--muted);font-size:10px;transition:transform .25s;flex-shrink:0}
-.ep.open .ep-chev{transform:rotate(180deg)}
-.ep-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
-.ep.open .ep-body{display:block}
-
-/* ── PARAM TABLE ── */
-.ptable{width:100%;border-collapse:collapse;margin:14px 0 0;font-size:12px}
-.ptable th{text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:5px 8px;border-bottom:1px solid var(--border)}
-.ptable td{padding:7px 8px;border-bottom:1px solid #10111a;vertical-align:top}
-.ptable tr:last-child td{border-bottom:none}
-.pname{font-family:var(--mono);color:#93c5fd;font-size:11px}
-.ptype{font-family:var(--mono);color:#a78bfa;font-size:10px}
-.req{background:rgba(248,113,113,.1);color:#fca5a5;border:1px solid rgba(248,113,113,.2);font-size:9px;padding:1px 6px;border-radius:3px;font-family:var(--mono)}
-.opt{background:rgba(85,86,112,.1);color:var(--muted);border:1px solid var(--border);font-size:9px;padding:1px 6px;border-radius:3px;font-family:var(--mono)}
-
-/* ── TRY IT ── */
-.try{margin-top:14px}
-.try-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.try-form{display:flex;flex-direction:column;gap:7px}
-.try-row{display:flex;gap:7px;flex-wrap:wrap}
-.ti{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;transition:border .2s;flex:1;min-width:120px}
-.ti:focus{border-color:var(--accent-dim)}
-.ti::placeholder{color:var(--muted)}
-.btn-run{background:var(--accent-glow);border:1px solid var(--accent-dim);color:var(--accent);font-family:var(--sans);font-weight:700;font-size:11px;padding:7px 18px;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap;align-self:flex-start}
-.btn-run:hover{background:var(--accent);color:#fff}
-.btn-run:disabled{opacity:.4;cursor:not-allowed}
-
-/* ── RESPONSE ── */
-.resp{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--mono);font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:240px;overflow-y:auto;display:none}
-.resp.show{display:block}
-.resp.ok{border-color:rgba(34,197,94,.3);color:#86efac}
-.resp.err{border-color:rgba(248,113,113,.3);color:#fca5a5}
-.resp.loading{color:var(--muted);font-style:italic}
-.preview{display:none;margin-top:10px;text-align:center}
-.preview img{max-width:100%;border-radius:8px;border:1px solid var(--border)}
-
-/* ── FOOTER ── */
 footer{border-top:1px solid var(--border);margin-top:60px;padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
-    <a href="#" class="logo">
+  <div class="navbar">
+    <a href="/" class="logo">
       <div class="logo-mark">⚡</div>
-      <span class="logo-name">Ve<span>xor</span></span>
+      <span class="logo-name">Vexor</span>
     </a>
-    <div class="hdr-right">
-      <div class="status-pill"><span class="status-dot"></span>online</div>
-    </div>
+    <nav class="nav-right">
+      <a href="/" class="nav-item">Docs</a>
+      <a href="/dashboard.html" class="nav-item">Dashboard</a>
+    </nav>
   </div>
 </header>
 
 <main>
   <div class="hero">
-    <div class="hero-tag">WhatsApp Bot · REST API</div>
-    <h1>The <em>Vexor</em><br>API Platform</h1>
-    <p>Kumpulan endpoint siap pakai untuk WhatsApp bot. Semua endpoint butuh API key.</p>
+    <div class="hero-tag">WhatsApp Bot API</div>
+    <h1>The <em>Vexor</em> Platform</h1>
+    <p>API lengkap untuk WhatsApp bot dengan fitur image generation, AI, media tools, dan monitoring real-time.</p>
   </div>
 
-  <!-- Key Bar -->
-  <div class="key-bar">
-    <span class="key-bar-label">x-api-key</span>
-    <input type="password" class="key-input" id="gkey" placeholder="Masukkan API key..." autocomplete="off">
-    <button class="btn-save" onclick="saveKey()">Simpan</button>
-    <span class="save-ok" id="save-ok">✓ Tersimpan</span>
-  </div>
-
-  <!-- ── MESSAGING ── -->
-  <div class="cat">
-    <div class="cat-header"><span class="cat-label">Messaging</span><div class="cat-line"></div></div>
-    <div class="ep-grid">
-
-      <div class="ep" id="e1">
-        <div class="ep-head" onclick="tog('e1')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/send-message</span>
-          <span class="ep-desc">Kirim pesan teks ke nomor WA</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">number</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Nomor WA, cth: 628xxx</td></tr>
-            <tr><td class="pname">message</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Isi pesan teks</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <div class="try-row">
-                <input class="ti" id="sm-n" placeholder="628xxxxxxxxxx">
-                <input class="ti" id="sm-m" placeholder="Halo dari Vexor!">
-              </div>
-              <button class="btn-run" onclick="run('send-message','POST',{number:'sm-n',message:'sm-m'},'r1')">Send</button>
-            </div>
-            <div class="resp" id="r1"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e2">
-        <div class="ep-head" onclick="tog('e2')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/send-media</span>
-          <span class="ep-desc">Kirim gambar / video / audio</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">number</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Nomor WA tujuan</td></tr>
-            <tr><td class="pname">url</td><td class="ptype">string</td><td><span class="req">required</span></td><td>URL file media</td></tr>
-            <tr><td class="pname">type</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>image / video / audio / document</td></tr>
-            <tr><td class="pname">caption</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Keterangan media</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <div class="try-row">
-                <input class="ti" id="med-n" placeholder="628xxxxxxxxxx">
-                <input class="ti" id="med-u" placeholder="https://example.com/img.jpg">
-              </div>
-              <div class="try-row">
-                <input class="ti" id="med-t" placeholder="image" style="max-width:100px">
-                <input class="ti" id="med-c" placeholder="Caption (opsional)">
-              </div>
-              <button class="btn-run" onclick="run('send-media','POST',{number:'med-n',url:'med-u',type:'med-t',caption:'med-c'},'r2')">Send</button>
-            </div>
-            <div class="resp" id="r2"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e3">
-        <div class="ep-head" onclick="tog('e3')">
-          <span class="method m-get">GET</span>
-          <span class="ep-path">/api/groups</span>
-          <span class="ep-desc">Ambil daftar grup WA</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <p style="font-size:12px;color:var(--muted);margin-top:12px">Tidak ada body. Hanya butuh API key.</p>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <button class="btn-run" onclick="run('groups','GET',{},'r3')">Send</button>
-            </div>
-            <div class="resp" id="r3"></div>
-          </div>
-        </div>
-      </div>
-
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Messaging</div>
+      <div class="feature-desc">Send text messages, media (image, video, audio, document) ke WhatsApp</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖼️</div>
+      <div class="feature-title">Image Generation</div>
+      <div class="feature-desc">ID card, leaderboard, quote card, weather card auto-generated</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Tools</div>
+      <div class="feature-desc">AI reply (Claude Haiku), code generator (LlamaCoder)</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚙️</div>
+      <div class="feature-title">Media Tools</div>
+      <div class="feature-desc">Sticker creator, media downloader, quote sticker</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Monitoring</div>
+      <div class="feature-desc">Real-time API dashboard dengan status, analytics, feature demo</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <div class="feature-title">Integration</div>
+      <div class="feature-desc">Mudah integrate ke bot pakai REST API, dokumentasi lengkap</div>
     </div>
   </div>
 
-  <!-- ── IMAGE CARDS ── -->
-  <div class="cat">
-    <div class="cat-header"><span class="cat-label">Image Cards</span><div class="cat-line"></div></div>
-    <div class="ep-grid">
-
-      <div class="ep" id="e4">
-        <div class="ep-head" onclick="tog('e4')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/id-card</span>
-          <span class="ep-desc">Generate kartu profil PNG</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">number</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Nomor WA</td></tr>
-            <tr><td class="pname">name</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Nama (auto dari WA)</td></tr>
-            <tr><td class="pname">avatar</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>URL foto profil</td></tr>
-            <tr><td class="pname">role</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Member / Admin / Owner</td></tr>
-            <tr><td class="pname">bio</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Bio singkat</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <div class="try-row">
-                <input class="ti" id="id-n" placeholder="628xxxxxxxxxx">
-                <input class="ti" id="id-nm" placeholder="Nama (opsional)">
-              </div>
-              <div class="try-row">
-                <input class="ti" id="id-r" placeholder="Member" style="max-width:100px">
-                <input class="ti" id="id-b" placeholder="Bio (opsional)">
-              </div>
-              <button class="btn-run" onclick="runIdCard()">Generate</button>
-            </div>
-            <div class="resp" id="r4"></div>
-            <div class="preview" id="prev4"><img id="img4"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e5">
-        <div class="ep-head" onclick="tog('e5')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/leaderboard</span>
-          <span class="ep-desc">Generate gambar leaderboard</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">members</td><td class="ptype">array</td><td><span class="req">required</span></td><td>[{name, score, extra?}] max 10</td></tr>
-            <tr><td class="pname">title</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Judul leaderboard</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it (contoh data)</div>
-            <div class="try-form">
-              <input class="ti" id="lb-t" placeholder="Top Member" style="width:100%">
-              <button class="btn-run" onclick="runLeaderboard()">Generate</button>
-            </div>
-            <div class="resp" id="r5"></div>
-            <div class="preview" id="prev5"><img id="img5"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e6">
-        <div class="ep-head" onclick="tog('e6')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/quote-card</span>
-          <span class="ep-desc">Generate gambar kutipan</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">text</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Teks quote (random jika kosong)</td></tr>
-            <tr><td class="pname">author</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Nama penulis</td></tr>
-            <tr><td class="pname">theme</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>purple / blue / green / gold</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <input class="ti" id="qc-t" placeholder="Teks quote (kosong = random)" style="width:100%">
-              <div class="try-row">
-                <input class="ti" id="qc-a" placeholder="Nama author">
-                <input class="ti" id="qc-th" placeholder="purple" style="max-width:90px">
-              </div>
-              <button class="btn-run" onclick="runQuote()">Generate</button>
-            </div>
-            <div class="resp" id="r6"></div>
-            <div class="preview" id="prev6"><img id="img6"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e7">
-        <div class="ep-head" onclick="tog('e7')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/quote-sticker</span>
-          <span class="ep-desc">Generate quote stiker WA</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">text</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Teks quote (max 100 karakter)</td></tr>
-            <tr><td class="pname">name</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Nama pengirim</td></tr>
-            <tr><td class="pname">avatar</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>URL foto profil</td></tr>
-            <tr><td class="pname">color</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>black / blue / red / green / purple / dll</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <input class="ti" id="qs-t" placeholder="Teks quote..." style="width:100%">
-              <div class="try-row">
-                <input class="ti" id="qs-n" placeholder="Nama">
-                <input class="ti" id="qs-c" placeholder="black" style="max-width:90px">
-              </div>
-              <button class="btn-run" onclick="runQuoteSticker()">Generate</button>
-            </div>
-            <div class="resp" id="r7"></div>
-            <div class="preview" id="prev7"><img id="img7"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e8">
-        <div class="ep-head" onclick="tog('e8')">
-          <span class="method m-get">GET</span>
-          <span class="ep-path">/api/weather</span>
-          <span class="ep-desc">Card cuaca dari nama kota</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">city</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Nama kota, cth: ?city=Jakarta</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <div class="try-row">
-                <input class="ti" id="wx-c" placeholder="Jakarta">
-              </div>
-              <button class="btn-run" onclick="runWeather()">Generate</button>
-            </div>
-            <div class="resp" id="r8"></div>
-            <div class="preview" id="prev8"><img id="img8"></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── AI & TOOLS ── -->
-  <div class="cat">
-    <div class="cat-header"><span class="cat-label">AI & Tools</span><div class="cat-line"></div></div>
-    <div class="ep-grid">
-
-      <div class="ep" id="e9">
-        <div class="ep-head" onclick="tog('e9')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/ai-reply</span>
-          <span class="ep-desc">Generate balasan AI via Claude</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">prompt</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Pesan / pertanyaan</td></tr>
-            <tr><td class="pname">system</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>System prompt / persona</td></tr>
-            <tr><td class="pname">model</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>claude-haiku-4-5 (default)</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <input class="ti" id="ai-p" placeholder="Siapa presiden Indonesia?" style="width:100%">
-              <input class="ti" id="ai-s" placeholder="System prompt (opsional)" style="width:100%">
-              <button class="btn-run" onclick="run('ai-reply','POST',{prompt:'ai-p',system:'ai-s'},'r9')">Send</button>
-            </div>
-            <div class="resp" id="r9"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e10">
-        <div class="ep-head" onclick="tog('e10')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/ai-coder</span>
-          <span class="ep-desc">Generate kode → ZIP via LlamaCoder</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">prompt</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Deskripsi kode yang ingin dibuat</td></tr>
-          </table>
-          <p style="font-size:11px;color:var(--muted);margin-top:10px;font-family:var(--mono)">Response: zipBase64 + fileName + files[] — proses 30–60 detik</p>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <input class="ti" id="ac-p" placeholder="buat landing page portfolio dengan tailwind" style="width:100%">
-              <button class="btn-run" onclick="run('ai-coder','POST',{prompt:'ac-p'},'r10')">Send</button>
-            </div>
-            <div class="resp" id="r10"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e11">
-        <div class="ep-head" onclick="tog('e11')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/sticker</span>
-          <span class="ep-desc">Buat stiker dari gambar/gif</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">url</td><td class="ptype">string</td><td><span class="req">required</span></td><td>URL gambar/gif/video</td></tr>
-            <tr><td class="pname">number</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Kirim langsung ke nomor WA</td></tr>
-            <tr><td class="pname">packname</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Nama stiker pack</td></tr>
-            <tr><td class="pname">author</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>Nama author</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <input class="ti" id="stk-u" placeholder="https://example.com/image.png" style="width:100%">
-              <div class="try-row">
-                <input class="ti" id="stk-n" placeholder="628xxx (opsional)">
-                <input class="ti" id="stk-p" placeholder="Pack name">
-              </div>
-              <button class="btn-run" onclick="run('sticker','POST',{url:'stk-u',number:'stk-n',packname:'stk-p'},'r11')">Send</button>
-            </div>
-            <div class="resp" id="r11"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ep" id="e12">
-        <div class="ep-head" onclick="tog('e12')">
-          <span class="method m-post">POST</span>
-          <span class="ep-path">/api/downloader</span>
-          <span class="ep-desc">Download TikTok / YouTube / IG</span>
-          <span class="ep-chev">▼</span>
-        </div>
-        <div class="ep-body">
-          <table class="ptable">
-            <tr><th>Parameter</th><th>Type</th><th></th><th>Keterangan</th></tr>
-            <tr><td class="pname">url</td><td class="ptype">string</td><td><span class="req">required</span></td><td>Link TikTok / YouTube / IG / Twitter</td></tr>
-            <tr><td class="pname">quality</td><td class="ptype">string</td><td><span class="opt">optional</span></td><td>best / 720p / 480p / audio</td></tr>
-          </table>
-          <div class="try"><div class="try-lbl">Try it</div>
-            <div class="try-form">
-              <div class="try-row">
-                <input class="ti" id="dl-u" placeholder="https://www.tiktok.com/@user/video/...">
-                <input class="ti" id="dl-q" placeholder="best" style="max-width:80px">
-              </div>
-              <button class="btn-run" onclick="run('downloader','POST',{url:'dl-u',quality:'dl-q'},'r12')">Send</button>
-            </div>
-            <div class="resp" id="r12"></div>
-          </div>
-        </div>
-      </div>
-
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin:36px 0">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Semua Endpoint</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;font-family:var(--mono);font-size:11px;color:var(--soft);line-height:2">
+      <div>POST /send-message</div>
+      <div>POST /send-media</div>
+      <div>GET /groups</div>
+      <div>POST /id-card</div>
+      <div>POST /leaderboard</div>
+      <div>POST /quote-card</div>
+      <div>POST /quote-sticker</div>
+      <div>GET /weather</div>
+      <div>POST /sticker</div>
+      <div>POST /downloader</div>
+      <div>POST /ai-reply</div>
+      <div>POST /ai-coder</div>
+      <div>GET /status</div>
     </div>
   </div>
 
 </main>
 
-<footer>Vexor API Platform · v1.0.0 · Semua request butuh <strong>x-api-key</strong></footer>
+<footer>Vexor API · v1.0.0 · WhatsApp Bot Platform</footer>
 
-<script>
-let apiKey = localStorage.getItem('vexor_api_key') || '';
-if (apiKey) document.getElementById('gkey').value = apiKey;
-
-function saveKey() {
-  apiKey = document.getElementById('gkey').value.trim();
-  localStorage.setItem('vexor_api_key', apiKey);
-  const el = document.getElementById('save-ok');
-  el.style.display = 'inline';
-  setTimeout(() => el.style.display = 'none', 2000);
-}
-document.getElementById('gkey').addEventListener('keydown', e => { if(e.key==='Enter') saveKey(); });
-
-function tog(id) { document.getElementById(id).classList.toggle('open'); }
-
-function getKey() { return document.getElementById('gkey').value.trim() || apiKey; }
-
-function showImg(prevId, imgId, b64, mime) {
-  const prev = document.getElementById(prevId);
-  const img  = document.getElementById(imgId);
-  img.src = `data:${mime};base64,${b64}`;
-  prev.style.display = 'block';
-}
-
-async function run(path, method, fields, respId) {
-  const box = document.getElementById(respId);
-  const key = getKey();
-  const btn = event.target;
-  if (!key) { box.className='resp show err'; box.textContent='⚠ Masukkan API key dulu!'; return; }
-
-  const body = {};
-  for (const [k, elId] of Object.entries(fields)) {
-    const el = document.getElementById(elId);
-    if (el && el.value.trim()) body[k] = el.value.trim();
-  }
-
-  box.className='resp show loading'; box.textContent='⏳ Sending...';
-  btn.disabled = true;
-  try {
-    const opts = { method, headers: { 'Content-Type':'application/json', 'x-api-key': key } };
-    if (method !== 'GET') opts.body = JSON.stringify(body);
-    const res  = await fetch(`/api/${path}`, opts);
-    const data = await res.json();
-    box.className = `resp show ${data.ok ? 'ok' : 'err'}`;
-    box.textContent = (data.ok ? '✓ ' : '✗ ') + JSON.stringify(data, null, 2);
-  } catch(e) {
-    box.className='resp show err'; box.textContent='✗ ' + e.message;
-  } finally { btn.disabled = false; }
-}
-
-async function runImg(path, method, body, respId, prevId, imgId) {
-  const box = document.getElementById(respId);
-  const key = getKey();
-  const btn = event.target;
-  if (!key) { box.className='resp show err'; box.textContent='⚠ Masukkan API key dulu!'; return; }
-
-  box.className='resp show loading'; box.textContent='⏳ Generating...';
-  document.getElementById(prevId).style.display = 'none';
-  btn.disabled = true;
-  try {
-    const opts = { method, headers:{ 'Content-Type':'application/json','x-api-key':key } };
-    if (method !== 'GET') opts.body = JSON.stringify(body);
-    const res  = await fetch(`/api/${path}`, opts);
-    const data = await res.json();
-    if (data.ok && data.imageBase64) {
-      box.className='resp show ok';
-      box.textContent=`✓ Generated! ${data.width}×${data.height}px`;
-      showImg(prevId, imgId, data.imageBase64, data.mimeType);
-    } else {
-      box.className='resp show err';
-      box.textContent='✗ ' + JSON.stringify(data, null, 2);
-    }
-  } catch(e) {
-    box.className='resp show err'; box.textContent='✗ '+e.message;
-  } finally { btn.disabled=false; }
-}
-
-function runIdCard() {
-  const b = {};
-  const n  = document.getElementById('id-n').value.trim();
-  const nm = document.getElementById('id-nm').value.trim();
-  const r  = document.getElementById('id-r').value.trim();
-  const bi = document.getElementById('id-b').value.trim();
-  if (!n) { const box=document.getElementById('r4'); box.className='resp show err'; box.textContent='⚠ number wajib diisi!'; return; }
-  b.number=n; if(nm) b.name=nm; if(r) b.role=r; if(bi) b.bio=bi;
-  runImg('id-card','POST',b,'r4','prev4','img4');
-}
-
-function runLeaderboard() {
-  const title = document.getElementById('lb-t').value.trim() || 'Top Member';
-  const members = [
-    {name:'Fizhxx',score:'9,850',extra:'Level 42'},
-    {name:'Mamat Rahmat',score:'7,200',extra:'Level 38'},
-    {name:'SantriCoding',score:'5,100',extra:'Level 31'},
-    {name:'BotMaster',score:'3,400',extra:'Level 25'},
-  ];
-  runImg('leaderboard','POST',{title,members},'r5','prev5','img5');
-}
-
-function runQuote() {
-  const b = {};
-  const t=document.getElementById('qc-t').value.trim();
-  const a=document.getElementById('qc-a').value.trim();
-  const th=document.getElementById('qc-th').value.trim();
-  if(t) b.text=t; if(a) b.author=a; if(th) b.theme=th;
-  runImg('quote-card','POST',b,'r6','prev6','img6');
-}
-
-function runQuoteSticker() {
-  const t=document.getElementById('qs-t').value.trim();
-  const n=document.getElementById('qs-n').value.trim();
-  const c=document.getElementById('qs-c').value.trim();
-  if(!t){const box=document.getElementById('r7');box.className='resp show err';box.textContent='⚠ text wajib diisi!';return;}
-  const b={text:t}; if(n) b.name=n; if(c) b.color=c;
-  runImg('quote-sticker','POST',b,'r7','prev7','img7');
-}
-
-function runWeather() {
-  const city = document.getElementById('wx-c').value.trim() || 'Jakarta';
-  const key = getKey();
-  const box = document.getElementById('r8');
-  const btn = event.target;
-  if (!key) { box.className='resp show err'; box.textContent='⚠ API key dulu!'; return; }
-  box.className='resp show loading'; box.textContent='⏳ Fetching weather...';
-  document.getElementById('prev8').style.display='none';
-  btn.disabled=true;
-  fetch(`/api/weather?city=${encodeURIComponent(city)}`,{headers:{'x-api-key':key}})
-    .then(r=>r.json()).then(data=>{
-      if(data.ok&&data.imageBase64){
-        box.className='resp show ok';
-        box.textContent=`✓ ${data.data.city}: ${data.data.temp}°C, ${data.data.desc}`;
-        showImg('prev8','img8',data.imageBase64,data.mimeType);
-      } else { box.className='resp show err'; box.textContent='✗ '+JSON.stringify(data,null,2); }
-    }).catch(e=>{box.className='resp show err';box.textContent='✗ '+e.message;})
-    .finally(()=>{btn.disabled=false;});
-}
-</script>
 </body>
 </html>
