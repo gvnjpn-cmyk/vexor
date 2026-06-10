@@ -406,8 +406,8 @@ const ENDPOINTS = [
   {p:'/random-facts', m:'GET'},
   {p:'/dash/status', m:'GET'},
   {p:'/dash/plugins', m:'GET'},
-  {p:'/dash/upload', m:'POST', b:{filename:'test.js',content:'dGVzdA=='}},
-  {p:'/dash/toggle', m:'POST', b:{filename:'test.js',enable:true}},
+  {p:'/dash/upload', m:'POST', b:{filename:'test.js',content:'Ly8gdGVzdA=='}, skip:true},
+  {p:'/dash/toggle', m:'POST', b:{filename:'test.js',enable:true}, skip:true},
 ];
 
 let results = {};
@@ -427,6 +427,15 @@ async function checkAll() {
   let ok=0, totalMs=0;
   await Promise.all(ENDPOINTS.map(async ep => {
     const id = 'ep-'+ep.p.replace(/\//g,'-');
+    // Skip write endpoints — mark as N/A
+    if(ep.skip) {
+      const el = document.getElementById(id);
+      if(el) {
+        el.querySelector('.dot').className = 'dot loading';
+        el.querySelector('.ep-meta').textContent = `${ep.m} · write-only`;
+      }
+      return;
+    }
     const start = Date.now();
     try {
       const url = `${BASE}${ep.p}${ep.q||''}`;
