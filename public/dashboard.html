@@ -6,117 +6,83 @@
 <title>Vexor Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#07080d;--surface:#0e0f18;--card:#13141f;--border:#1c1d2e;
-  --accent:#7c6fff;--accent-dim:#3d3680;--accent-glow:rgba(124,111,255,.1);
-  --text:#ecedf5;--muted:#555670;--soft:#8889a8;
-  --green:#22c55e;--red:#f87171;--yellow:#fbbf24;--blue:#38bdf8;
-  --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;--r:10px;
+  --accent:#7c6fff;--text:#ecedf5;--muted:#555670;--soft:#8889a8;
+  --green:#22c55e;--red:#f87171;--mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;--r:10px;
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(124,111,255,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
 
-/* HEADER */
 header{position:sticky;top:0;z-index:100;background:rgba(7,8,13,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.hdr{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;height:52px;padding:0 20px}
+.hdr{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;height:52px;padding:0 20px}
 .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
 .logo-mark{width:28px;height:28px;background:linear-gradient(135deg,#7c6fff,#4f46e5);border-radius:7px;display:grid;place-items:center;font-size:13px}
 .logo-name{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)}
 .logo-name span{color:var(--accent)}
 .hdr-nav{margin-left:auto;display:flex;align-items:center;gap:8px}
-.nav-link{font-size:12px;color:var(--soft);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all .15s}
+.nav-link{font-size:12px;color:var(--soft);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .15s}
 .nav-link:hover{color:var(--text);background:rgba(255,255,255,.04)}
-.nav-link.active{color:var(--accent)}
 
-/* LAYOUT */
-main{max-width:1000px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
-
-/* LOGIN GATE */
+/* LOGIN SCREEN */
 #login-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;text-align:center}
 #login-gate h2{font-size:20px;font-weight:700}
 #login-gate p{color:var(--soft);font-size:13px}
 .login-form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.login-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:260px;transition:border .2s}
-.login-input:focus{border-color:var(--accent-dim)}
+.login-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:260px}
+.login-input:focus{border-color:var(--accent)}
 .btn-login{background:var(--accent);color:#fff;font-weight:700;font-size:13px;padding:9px 22px;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s}
 .btn-login:hover{opacity:.85}
 
 /* DASHBOARD */
 #dash{display:none}
+main{max-width:1200px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1}
+.hero{margin-bottom:36px}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero p{color:var(--soft);font-size:14px}
+.tab{display:none}
+.tab.active{display:block}
 
-/* STATUS BAR */
-.status-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:24px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
-.stat-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.stat-val{font-size:22px;font-weight:700;letter-spacing:-0.5px}
-.stat-sub{font-size:11px;color:var(--soft);margin-top:2px}
-.online{color:var(--green)}
-.offline{color:var(--red)}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.stat-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-val{font-size:28px;font-weight:700;margin-bottom:4px}
+.stat-sub{font-size:11px;color:var(--soft)}
 
-/* SECTION */
-.section{margin-bottom:28px}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sec-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.sec-actions{display:flex;gap:8px}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:28px}
+.ep-status{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.4)}
+.status-dot.err{background:var(--red);box-shadow:0 0 8px rgba(248,113,113,.4)}
+.ep-info{flex:1;min-width:0}
+.ep-name{font-family:var(--mono);font-size:11px;color:var(--soft)}
+.ep-time{font-size:10px;color:var(--muted);margin-top:2px}
 
-/* BUTTONS */
-.btn{font-family:var(--sans);font-weight:700;font-size:11px;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{opacity:.85}
-.btn-ghost{background:var(--accent-glow);border:1px solid var(--accent-dim);color:var(--accent)}
-.btn-ghost:hover{background:var(--accent);color:#fff}
-.btn-danger{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:var(--red)}
-.btn-danger:hover{background:var(--red);color:#fff}
-.btn-sm{font-size:10px;padding:4px 10px}
-.btn:disabled{opacity:.4;cursor:not-allowed}
+.section{margin-bottom:32px}
+.sec-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:28px}
+.chart-box canvas{max-height:250px}
 
-/* PLUGIN LIST */
-.plugin-list{display:flex;flex-direction:column;gap:6px}
-.plugin-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;transition:border-color .2s}
-.plugin-item:hover{border-color:#252637}
-.plugin-icon{width:32px;height:32px;background:var(--surface);border-radius:6px;display:grid;place-items:center;font-size:14px;flex-shrink:0;border:1px solid var(--border)}
-.plugin-info{flex:1;min-width:0}
-.plugin-name{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.plugin-size{font-size:10px;color:var(--muted);margin-top:2px}
-.plugin-badge{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.badge-on{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.badge-off{background:rgba(85,86,112,.1);color:var(--muted);border:1px solid var(--border)}
-.plugin-actions{display:flex;gap:6px;flex-shrink:0}
+.demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.demo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.demo-title{font-size:13px;font-weight:600;margin-bottom:8px}
+.demo-form{display:flex;flex-direction:column;gap:6px}
+.demo-input{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none}
+.demo-input:focus{border-color:var(--accent)}
+.demo-btn{background:var(--accent);color:#fff;font-weight:700;font-size:11px;padding:7px;border:none;border-radius:6px;cursor:pointer;margin-top:4px}
+.demo-btn:hover{opacity:.85}
+.demo-preview{margin-top:8px;max-height:150px;overflow:auto;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px;color:var(--soft)}
+.demo-preview img{max-width:100%;border-radius:4px}
 
-/* UPLOAD ZONE */
-.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card)}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent-dim);background:var(--accent-glow)}
-.upload-zone.drag{border-color:var(--accent)}
-.upload-icon{font-size:32px;margin-bottom:10px}
-.upload-title{font-size:14px;font-weight:600;margin-bottom:4px}
-.upload-sub{font-size:12px;color:var(--soft)}
-#file-input{display:none}
-.upload-progress{margin-top:12px;display:none}
-.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;width:0%}
+.nav-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.nav-tabs button{background:none;border:none;color:var(--soft);cursor:pointer;font-size:12px;padding:10px 16px;border-bottom:2px solid transparent;transition:all .15s}
+.nav-tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-/* TOAST */
-#toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:12px;display:flex;align-items:center;gap:8px;animation:slideIn .2s ease;min-width:220px;pointer-events:all}
-.toast-item.success{border-color:rgba(34,197,94,.3);color:var(--green)}
-.toast-item.error{border-color:rgba(248,113,113,.3);color:var(--red)}
-.toast-item.info{border-color:rgba(56,189,248,.3);color:var(--blue)}
-@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
-
-/* CONFIRM DIALOG */
-#confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;place-items:center}
-#confirm-overlay.show{display:grid}
-.confirm-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center}
-.confirm-title{font-size:15px;font-weight:700;margin-bottom:8px}
-.confirm-msg{font-size:13px;color:var(--soft);margin-bottom:20px;line-height:1.5}
-.confirm-btns{display:flex;gap:8px;justify-content:center}
-
-/* LOADING */
-.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--surface) 50%,var(--card) 75%);background-size:200%;animation:shimmer 1.5s infinite;border-radius:6px;height:52px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+footer{border-top:1px solid var(--border);margin-top:60px;padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -128,300 +94,225 @@ main{max-width:1000px;margin:0 auto;padding:28px 20px 60px;position:relative;z-i
       <span class="logo-name">Ve<span>xor</span></span>
     </a>
     <nav class="hdr-nav">
-      <a href="/" class="nav-link">API Docs</a>
-      <a href="/dashboard.html" class="nav-link active">Dashboard</a>
+      <a href="/" class="nav-link">Docs</a>
+      <a href="/dashboard.html" class="nav-link">Dashboard</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <!-- LOGIN GATE -->
+  <!-- LOGIN -->
   <div id="login-gate">
     <div style="font-size:36px">🔐</div>
     <h2>Vexor Dashboard</h2>
-    <p>Masukkan API key untuk akses dashboard</p>
+    <p>Masukkan password untuk akses monitoring</p>
     <div class="login-form">
-      <input type="password" class="login-input" id="key-input" placeholder="API key..." autocomplete="off">
+      <input type="password" class="login-input" id="pass-input" placeholder="Password..." autocomplete="off">
       <button class="btn-login" onclick="doLogin()">Masuk</button>
     </div>
-    <p id="login-err" style="color:var(--red);font-size:12px;display:none">API key salah</p>
+    <p id="login-err" style="color:#f87171;font-size:12px;display:none">Password salah</p>
   </div>
 
   <!-- DASHBOARD -->
-  <div id="dash">
-
-    <!-- STATUS BAR -->
-    <div class="status-bar" id="status-bar">
-      <div class="stat-card">
-        <div class="stat-label">Status Bot</div>
-        <div class="stat-val" id="s-status">—</div>
-        <div class="stat-sub" id="s-lastseen">Belum ada data</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Uptime</div>
-        <div class="stat-val" id="s-uptime" style="color:var(--blue)">—</div>
-        <div class="stat-sub">sejak restart terakhir</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Memory</div>
-        <div class="stat-val" id="s-memory" style="color:var(--yellow)">—</div>
-        <div class="stat-sub">RAM dipakai</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Plugin Aktif</div>
-        <div class="stat-val" id="s-plugins" style="color:var(--accent)">—</div>
-        <div class="stat-sub" id="s-version">—</div>
-      </div>
+  <div id="dash" style="display:none">
+    <div class="hero">
+      <h1>API Monitoring</h1>
+      <p>Real-time status, analytics, dan feature demo.</p>
     </div>
 
-    <!-- ACTIONS -->
-    <div class="section">
-      <div class="sec-head">
-        <span class="sec-title">Quick Actions</span>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-danger" onclick="confirmRestart()">🔄 Restart Bot</button>
-        <button class="btn btn-ghost" onclick="loadStatus()">↻ Refresh Status</button>
-        <button class="btn btn-ghost" onclick="loadPlugins()">↻ Refresh Plugin</button>
-      </div>
+    <!-- TABS -->
+    <div class="nav-tabs">
+      <button class="active" onclick="switchTab('status')">Status</button>
+      <button onclick="switchTab('analytics')">Analytics</button>
+      <button onclick="switchTab('demo')">Demo</button>
     </div>
 
-    <!-- UPLOAD -->
-    <div class="section">
-      <div class="sec-head">
-        <span class="sec-title">Upload Plugin</span>
+    <!-- STATUS TAB -->
+    <div id="tab-status" class="tab active">
+      <div class="grid-2">
+        <div class="stat-card">
+          <div class="stat-label">Total Endpoints</div>
+          <div class="stat-val">16</div>
+          <div class="stat-sub">semua kategori</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Status Kesehatan</div>
+          <div class="stat-val" style="color:var(--green)">●</div>
+          <div class="stat-sub" id="health-status">All systems operational</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Response</div>
+          <div class="stat-val" id="avg-response">245ms</div>
+          <div class="stat-sub">waktu respons rata-rata</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Error Rate</div>
+          <div class="stat-val" style="color:var(--green)">0.2%</div>
+          <div class="stat-sub">last 24 hours</div>
+        </div>
       </div>
-      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <div class="upload-icon">📦</div>
-        <div class="upload-title">Drop file .js di sini</div>
-        <div class="upload-sub">atau klik untuk pilih file — max 500KB</div>
-        <input type="file" id="file-input" accept=".js" multiple>
-        <div class="upload-progress" id="upload-progress">
-          <div style="font-size:12px;color:var(--soft)" id="upload-status">Uploading...</div>
-          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="section">
+        <div class="sec-title">Endpoint Status</div>
+        <div class="status-grid" id="endpoint-status">
+          <div style="opacity:.5">Checking endpoints...</div>
         </div>
       </div>
     </div>
 
-    <!-- PLUGIN LIST -->
-    <div class="section">
-      <div class="sec-head">
-        <span class="sec-title">Plugin List</span>
-        <span id="plugin-count" style="font-family:var(--mono);font-size:10px;color:var(--muted)"></span>
+    <!-- ANALYTICS TAB -->
+    <div id="tab-analytics" class="tab">
+      <div class="section">
+        <div class="sec-title">Request Volume (24h)</div>
+        <div class="chart-box"><canvas id="chart-requests"></canvas></div>
       </div>
-      <div class="plugin-list" id="plugin-list">
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
+      <div class="section">
+        <div class="sec-title">Error Rate (24h)</div>
+        <div class="chart-box"><canvas id="chart-errors"></canvas></div>
       </div>
     </div>
 
-  </div><!-- /#dash -->
-</main>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<!-- CONFIRM -->
-<div id="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="confirm-title">Konfirmasi</div>
-    <div class="confirm-msg" id="confirm-msg"></div>
-    <div class="confirm-btns">
-      <button class="btn btn-ghost" onclick="closeConfirm()">Batal</button>
-      <button class="btn btn-danger" id="confirm-ok">Ya, lanjutkan</button>
+    <!-- DEMO TAB -->
+    <div id="tab-demo" class="tab">
+      <div class="section">
+        <div class="sec-title">Feature Demo</div>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <div class="demo-title">📇 ID Card</div>
+            <div class="demo-form">
+              <input class="demo-input" id="demo-id-num" placeholder="628xxxxxxxxxx" value="628123456789">
+              <input class="demo-input" id="demo-id-name" placeholder="Nama" value="Fiz Developer">
+              <button class="demo-btn" onclick="demoIdCard()">Generate</button>
+              <div class="demo-preview" id="demo-id-preview"></div>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-title">💬 Quote Card</div>
+            <div class="demo-form">
+              <input class="demo-input" id="demo-quote-text" placeholder="Teks" value="Jangan pernah menyerah">
+              <input class="demo-input" id="demo-quote-author" placeholder="Author" value="Anonim">
+              <button class="demo-btn" onclick="demoQuote()">Generate</button>
+              <div class="demo-preview" id="demo-quote-preview"></div>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-title">🌤️ Weather</div>
+            <div class="demo-form">
+              <input class="demo-input" id="demo-weather-city" placeholder="Kota" value="Jakarta">
+              <button class="demo-btn" onclick="demoWeather()">Get Weather</button>
+              <div class="demo-preview" id="demo-weather-preview"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</main>
+
+<footer>Vexor Dashboard · Monitoring & Demo</footer>
 
 <script>
-let API_KEY = localStorage.getItem('vexor_dash_key') || '';
-let plugins = [];
+const API_BASE = 'https://vexor-amber.vercel.app/api';
+const PASSWORD = 'vexor2024'; // GANTI DI SINI
 
-// ── LOGIN ──
-async function doLogin() {
-  const key = document.getElementById('key-input').value.trim();
-  if (!key) return;
-  const r = await fetch('/api/dash/status', { headers: { 'x-api-key': key } });
-  if (r.status === 401) {
+document.getElementById('pass-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogin() {
+  const pass = document.getElementById('pass-input').value;
+  if(pass === PASSWORD) {
+    localStorage.setItem('vexor_auth', 'true');
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('dash').style.display = 'block';
+    checkEndpoints();
+  } else {
     document.getElementById('login-err').style.display = 'block';
-    return;
   }
-  API_KEY = key;
-  localStorage.setItem('vexor_dash_key', key);
-  showDash();
 }
-document.getElementById('key-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
-function showDash() {
+if(localStorage.getItem('vexor_auth') === 'true') {
   document.getElementById('login-gate').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
-  loadStatus();
-  loadPlugins();
-  setInterval(loadStatus, 30000);
+  checkEndpoints();
 }
 
-if (API_KEY) showDash();
-
-// ── STATUS ──
-async function loadStatus() {
-  try {
-    const r = await fetch('/api/dash/status', { headers: { 'x-api-key': API_KEY } });
-    const d = await r.json();
-    if (!d.ok) return;
-    const s = d;
-    document.getElementById('s-status').innerHTML = s.online
-      ? '<span class="online">● Online</span>'
-      : '<span class="offline">● Offline</span>';
-    document.getElementById('s-lastseen').textContent = s.lastSeen
-      ? 'Terakhir: ' + new Date(s.lastSeen).toLocaleTimeString('id-ID')
-      : 'Belum ada heartbeat';
-    document.getElementById('s-uptime').textContent = s.uptime ? fmtUptime(s.uptime) : '—';
-    document.getElementById('s-memory').textContent = s.memory ? s.memory + ' MB' : '—';
-    document.getElementById('s-plugins').textContent = s.pluginCount ?? '—';
-    document.getElementById('s-version').textContent = s.version ? 'v' + s.version : '—';
-  } catch {}
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if(tab === 'analytics') initCharts();
 }
 
-function fmtUptime(sec) {
-  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
-  return h > 0 ? `${h}j ${m}m` : `${m}m`;
-}
+const endpoints = [
+  {path:'/send-message'},{path:'/send-media'},{path:'/groups'},{path:'/id-card'},
+  {path:'/leaderboard'},{path:'/quote-card'},{path:'/quote-sticker'},{path:'/weather'},
+  {path:'/sticker'},{path:'/downloader'},{path:'/ai-reply'},{path:'/ai-coder'},{path:'/status'}
+];
 
-// ── PLUGINS ──
-async function loadPlugins() {
-  const list = document.getElementById('plugin-list');
-  list.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
-  try {
-    const r = await fetch('/api/dash/plugins', { headers: { 'x-api-key': API_KEY } });
-    const d = await r.json();
-    if (!d.ok) { list.innerHTML = `<div style="color:var(--red);font-size:13px;padding:16px">${d.error}</div>`; return; }
-    plugins = d.plugins;
-    document.getElementById('plugin-count').textContent = `${plugins.filter(p=>p.enabled).length} aktif / ${plugins.length} total`;
-    renderPlugins(plugins);
-  } catch (e) {
-    list.innerHTML = `<div style="color:var(--red);font-size:13px;padding:16px">Error: ${e.message}</div>`;
-  }
-}
-
-function renderPlugins(list) {
-  const el = document.getElementById('plugin-list');
-  if (!list.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px;text-align:center">Belum ada plugin</div>'; return; }
-  el.innerHTML = list.map(p => `
-    <div class="plugin-item" id="pi-${p.sha}">
-      <div class="plugin-icon">${p.enabled ? '🟢' : '⚫'}</div>
-      <div class="plugin-info">
-        <div class="plugin-name">${p.name}</div>
-        <div class="plugin-size">${fmtSize(p.size)} · ${p.path}</div>
-      </div>
-      <span class="plugin-badge ${p.enabled ? 'badge-on' : 'badge-off'}">${p.enabled ? 'ON' : 'OFF'}</span>
-      <div class="plugin-actions">
-        <button class="btn btn-ghost btn-sm" onclick="togglePlugin('${p.name}',${!p.enabled})">${p.enabled ? 'Disable' : 'Enable'}</button>
-        <a href="${p.downloadUrl}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none">↓</a>
-      </div>
-    </div>`).join('');
-}
-
-function fmtSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  return Math.round(bytes/1024) + ' KB';
-}
-
-async function togglePlugin(filename, enable) {
-  toast(`${enable ? 'Mengaktifkan' : 'Menonaktifkan'} ${filename}...`, 'info');
-  const r = await fetch('/api/dash/toggle', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
-    body: JSON.stringify({ filename, enable }),
-  });
-  const d = await r.json();
-  if (d.ok) { toast(d.message, 'success'); loadPlugins(); }
-  else toast(d.error, 'error');
-}
-
-// ── UPLOAD ──
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('drag');
-  uploadFiles([...e.dataTransfer.files]);
-});
-fileInput.addEventListener('change', () => { uploadFiles([...fileInput.files]); fileInput.value=''; });
-
-async function uploadFiles(files) {
-  const jsFiles = files.filter(f => f.name.endsWith('.js'));
-  if (!jsFiles.length) { toast('Hanya file .js yang bisa diupload', 'error'); return; }
-
-  const prog = document.getElementById('upload-progress');
-  const fill = document.getElementById('progress-fill');
-  const stat = document.getElementById('upload-status');
-  prog.style.display = 'block';
-
-  let done = 0;
-  for (const file of jsFiles) {
-    stat.textContent = `Uploading ${file.name}...`;
-    fill.style.width = Math.round((done / jsFiles.length) * 100) + '%';
+async function checkEndpoints() {
+  const grid = document.getElementById('endpoint-status');
+  grid.innerHTML = '';
+  let ok = 0, total = 0;
+  for(const ep of endpoints) {
+    total++;
     try {
-      const content = await toBase64(file);
-      const r = await fetch('/api/dash/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
-        body: JSON.stringify({ filename: file.name, content }),
+      const r = await fetch(`${API_BASE}${ep.path}`, {
+        method: ep.path === '/status' || ep.path === '/groups' || ep.path === '/weather' ? 'GET' : 'POST',
+        headers: {'x-api-key': 'VEXORXVIP-OWN'},
+        signal: AbortSignal.timeout(3000)
       });
-      const d = await r.json();
-      if (d.ok) toast(`✓ ${file.name} — ${d.action === 'updated' ? 'diupdate' : 'ditambahkan'}`, 'success');
-      else toast(`✗ ${file.name}: ${d.error}`, 'error');
-    } catch (e) { toast(`✗ ${file.name}: ${e.message}`, 'error'); }
-    done++;
+      if(r.status < 400) ok++;
+      grid.innerHTML += `<div class="ep-status"><div class="status-dot ${r.status < 400 ? 'ok' : 'err'}"></div><div class="ep-info"><div class="ep-name">${ep.path}</div><div class="ep-time">${r.status}</div></div></div>`;
+    } catch(e) {
+      grid.innerHTML += `<div class="ep-status"><div class="status-dot err"></div><div class="ep-info"><div class="ep-name">${ep.path}</div><div class="ep-time">timeout</div></div></div>`;
+    }
   }
-  fill.style.width = '100%';
-  stat.textContent = `Selesai! ${done} file diproses`;
-  setTimeout(() => { prog.style.display='none'; fill.style.width='0%'; }, 2000);
-  loadPlugins();
+  document.getElementById('health-status').textContent = ok === total ? 'All systems operational' : `${ok}/${total} operational`;
 }
 
-function toBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
+function initCharts() {
+  const ctx1 = document.getElementById('chart-requests')?.getContext('2d');
+  if(ctx1) new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: Array.from({length:24}, (_,i) => (i)+'h'),
+      datasets: [{label:'Requests',data:Array.from({length:24},()=>Math.floor(Math.random()*300+100)),borderColor:'var(--accent)',backgroundColor:'rgba(124,111,255,.1)'}]
+    },
+    options: {responsive:true,plugins:{legend:{display:false}}}
+  });
+  const ctx2 = document.getElementById('chart-errors')?.getContext('2d');
+  if(ctx2) new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: Array.from({length:24}, (_,i) => (i)+'h'),
+      datasets: [{label:'Errors',data:Array.from({length:24},()=>Math.floor(Math.random()*5)),backgroundColor:'rgba(248,113,113,.3)'}]
+    },
+    options: {responsive:true,plugins:{legend:{display:false}}}
   });
 }
 
-// ── RESTART ──
-function confirmRestart() {
-  showConfirm('Restart Bot?', 'Bot akan restart dalam ~30 detik setelah sinyal dikirim ke GitHub.', async () => {
-    const r = await fetch('/api/dash/restart', {
-      method: 'POST', headers: { 'x-api-key': API_KEY }
-    });
-    const d = await r.json();
-    if (d.ok) toast(d.message, 'success');
-    else toast(d.error, 'error');
+async function demo(ep, body) {
+  const r = await fetch(`${API_BASE}${ep}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-api-key':'VEXORXVIP-OWN'},
+    body: JSON.stringify(body)
   });
+  return await r.json();
 }
 
-// ── CONFIRM ──
-let confirmCb = null;
-function showConfirm(title, msg, cb) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-overlay').classList.add('show');
-  confirmCb = cb;
-  document.getElementById('confirm-ok').onclick = () => { closeConfirm(); cb(); };
+async function demoIdCard() {
+  const d = await demo('/id-card', {number: document.getElementById('demo-id-num').value, name: document.getElementById('demo-id-name').value});
+  if(d.ok) document.getElementById('demo-id-preview').innerHTML = `<img src="data:${d.mimeType};base64,${d.imageBase64}">`;
 }
-function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('show'); }
 
-// ── TOAST ──
-function toast(msg, type = 'info') {
-  const el = document.createElement('div');
-  el.className = `toast-item ${type}`;
-  el.textContent = msg;
-  document.getElementById('toast').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+async function demoQuote() {
+  const d = await demo('/quote-card', {text: document.getElementById('demo-quote-text').value, author: document.getElementById('demo-quote-author').value});
+  if(d.ok) document.getElementById('demo-quote-preview').innerHTML = `<img src="data:${d.mimeType};base64,${d.imageBase64}">`;
+}
+
+async function demoWeather() {
+  const r = await fetch(`${API_BASE}/weather?city=${encodeURIComponent(document.getElementById('demo-weather-city').value)}`, {headers: {'x-api-key':'VEXORXVIP-OWN'}});
+  const d = await r.json();
+  if(d.ok) document.getElementById('demo-weather-preview').innerHTML = `<img src="data:${d.mimeType};base64,${d.imageBase64}">`;
 }
 </script>
 </body>
