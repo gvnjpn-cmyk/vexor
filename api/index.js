@@ -57,6 +57,22 @@ export default async function handler(req, res) {
     case '/dash/upload':     return handleDashUpload(req, res);
     case '/dash/toggle':     return handleDashToggle(req, res);
     case '/dash/restart':    return handleDashRestart(req, res);
+    // NEW ENDPOINTS
+    case '/philosopher-quotes': return handlePhilosopherQuotes(req, res);
+    case '/anime-quotes':    return handleAnimeQuotes(req, res);
+    case '/qr-code':         return handleQrCode(req, res);
+    case '/barcode':         return handleBarcode(req, res);
+    case '/username-gen':    return handleUsernameGen(req, res);
+    case '/jokes':           return handleJokes(req, res);
+    case '/currency':        return handleCurrencyConvert(req, res);
+    case '/ascii-art':       return handleAsciiArt(req, res);
+    case '/random-name':     return handleRandomName(req, res);
+    case '/gradient-bg':     return handleGradientBg(req, res);
+    case '/text-stats':      return handleTextStats(req, res);
+    case '/ip-info':         return handleIpInfo(req, res);
+    case '/color-info':      return handleColorInfo(req, res);
+    case '/short-url':       return handleShortUrl(req, res);
+    case '/random-facts':    return handleRandomFacts(req, res);
     default:                 return fail(res, `Endpoint '${path}' tidak ditemukan`, 404);
   }
 }
